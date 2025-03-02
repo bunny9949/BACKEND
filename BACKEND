@@ -1,0 +1,51 @@
+pip install numpy scikit-learn openai  
+import numpy as np  
+import openai  
+
+openai.api_key = 'YOUR_OPENAI_API_KEY'  
+  
+products = [  
+    {'id': 1, 'name': 'Samsung Galaxy S21', 'price': 799, 'category': 'smartphone', 'offer': 20, 'sales_period': ['June']},  
+    {'id': 2, 'name': 'Apple iPhone 13', 'price': 999, 'category': 'smartphone', 'offer': 15, 'sales_period': ['November']},  
+    {'id': 3, 'name': 'Dell XPS 13', 'price': 999, 'category': 'laptop', 'offer': 25, 'sales_period': [' December']},  
+    
+]  
+
+product_vectors = np.array([np.random.rand(5) for _ in products])  # 5-dimensional vectors
+def get_chatgpt_response(user_input):  
+    response = openai.ChatCompletion.create(  
+        model="gpt-3.5-turbo",  
+        messages=[  
+            {"role": "user", "content": user_input}  
+        ]  
+    )  
+    return response['choices'][0]['message']['content']
+def predict_best_offer(category):  
+    # Simple prediction logic based on predefined product data  
+    relevant_products = [  
+        product for product in products  
+        if product['category'] == category  
+    ]  
+    
+    if not relevant_products:  
+        return "No products found in this category."  
+
+    best_offer_product = max(relevant_products, key=lambda x: x['offer'])  
+    return f"The best offer is on {best_offer_product['name']} with {best_offer_product['offer']}% off, currently priced at ${best_offer_product['price']}."
+def user_interaction():  
+    print("Welcome to E-commerce Assistant!")  
+    
+    while True:  
+        user_query = input("What can I help you with? (Type 'exit' to quit) ")  
+        if user_query.lower() == 'exit':  
+            break  
+        
+        # Check for specific keywords  
+        if "best offer" in user_query.lower():  
+            category = input("What category are you interested in? (smartphone/laptop) ")  
+            offer_prediction = predict_best_offer(category)  
+            print(offer_prediction)  
+        
+        else:  
+            response = get_chatgpt_response(user_query)  
+            print(response)
